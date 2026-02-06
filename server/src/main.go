@@ -19,12 +19,12 @@ func main() {
 	connections.DBCon.SetDB(db)
 
 	// REST multiplexer
-	mux := http.NewServeMux()
+	router := http.NewServeMux()
 
 	//handlers
-	mux.HandleFunc("POST /login", handlers.Login)
-	mux.HandleFunc("POST /register", handlers.RegisterSite)
+	router.HandleFunc("POST /login", handlers.Login)
+	router.HandleFunc("POST /register", handlers.RegisterSite)
 
 	log.Println("Server starting on :8000")
-	log.Fatal(http.ListenAndServe(":8000", mux))
+	log.Fatal(http.ListenAndServe(":8000", router))
 }
