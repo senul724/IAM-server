@@ -12,3 +12,9 @@ type SiteData struct {
 	Description string `json:"description"`
 	PhotoUrl    string `json:"photo_url"`
 }
+
+type UserData struct {
+	Name     string `json:"name"`
+	PhotoUrl string `json:"photo_url"`
+	Email    string `json:"email"`
+}
