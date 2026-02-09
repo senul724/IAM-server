@@ -11,7 +11,7 @@ import (
 
 const key = "yqY9OPPUy4RouGWbelqwUwlxqyu9NwzFMZNrZJlcfLV"
 
-func CreateToken(userId string, userdata *types.UserData) (string, error) {
+func CreateRefreshToken(userId string, userdata *types.UserData) (string, error) {
 	jsonData, err := json.Marshal(userdata)
 	if err != nil {
 		return "", err

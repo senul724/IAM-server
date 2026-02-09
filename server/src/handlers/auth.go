@@ -11,28 +11,26 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type payload struct {
+type QueryData struct {
 	UserId    string `json:"user_id"`
 	Name      string `json:"name"`
 	PhotoUrl  string `json:"photo_url"`
 	HashedPwd string `json:"hashed_password"`
-	LastLogin int    `json:"last_login"`
-	Token     string `json:"token"`
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	var info types.UserCredential
-	var payload payload
+	var credentials types.UserCredential
+	var queryData QueryData
 
 	db := connections.DBCon.DB
 
-	err := json.NewDecoder(r.Body).Decode(&info)
+	err := json.NewDecoder(r.Body).Decode(&credentials)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	qry := `SELECT s.hashed_password, u.id, s.last_login, u.name, u.photo_url
+	qry := `SELECT s.hashed_password, u.id, u.name, u.photo_url
 	FROM user_site s 
 	INNER JOIN public.user u
 	ON s.user_id = u.id 
@@ -42,48 +40,56 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var photoRet sql.NullString
 	var nameRet sql.NullString
 
-	scanErr := db.QueryRow(qry, info.Email, info.Site).Scan(
-		&payload.HashedPwd,
-		&payload.UserId,
-		&payload.LastLogin,
+	scanErr := db.QueryRow(qry, credentials.Email, credentials.Site).Scan(
+		&queryData.HashedPwd,
+		&queryData.UserId,
 		&nameRet,
 		&photoRet,
 	)
 
-	// setting retained values
-	payload.PhotoUrl = utils.HadleNullSqlString(&photoRet)
-	payload.Name = utils.HadleNullSqlString(&nameRet)
+	// setting retained values and other queryData values
+	queryData.PhotoUrl = utils.HadleNullSqlString(&photoRet)
+	queryData.Name = utils.HadleNullSqlString(&nameRet)
 
+	// Scanning for the user in the DB
 	if scanErr == sql.ErrNoRows {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
-
 	if scanErr != nil {
 		http.Error(w, scanErr.Error(), http.StatusBadRequest)
 		return
 	}
 
-	pwdMatchErr := bcrypt.CompareHashAndPassword([]byte(payload.HashedPwd), []byte(info.PWD))
+	// validation credentials
+	pwdMatchErr := bcrypt.CompareHashAndPassword([]byte(queryData.HashedPwd), []byte(credentials.PWD))
 	if pwdMatchErr != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
+	// creating jwt
 	userdata := types.UserData{
-		Name:     payload.Name,
-		PhotoUrl: payload.PhotoUrl,
-		Email:    info.Email,
+		Name:     queryData.Name,
+		PhotoUrl: queryData.PhotoUrl,
+		Email:    credentials.Email,
 	}
-	token, jwtError := utils.CreateToken(payload.UserId, &userdata)
+	token, jwtError := utils.CreateRefreshToken(queryData.UserId, &userdata)
 	if jwtError != nil {
 		http.Error(w, "Failed to generate token:"+jwtError.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	payload.Token = token
+	// setting cookies
+	cookie := http.Cookie{
+		Name:     "iam-refresh",
+		Value:    token,
+		MaxAge:   5000,
+		Secure:   true,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-type", "json")
-	json.NewEncoder(w).Encode(payload)
+	w.Write([]byte("Successfully logged in!"))
 }
