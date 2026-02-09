@@ -38,15 +38,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	ON s.user_id = u.id 
 	WHERE u.email = $1 AND s.site_domain = $2`
 
-	var photo sql.NullString
+	// creating retainer for nullable field
+	var photoRet sql.NullString
+	var nameRet sql.NullString
 
 	scanErr := db.QueryRow(qry, info.Email, info.Site).Scan(
 		&payload.HashedPwd,
 		&payload.UserId,
 		&payload.LastLogin,
-		&payload.Name,
-		&photo,
+		&nameRet,
+		&photoRet,
 	)
+
+	// setting retained values
+	payload.PhotoUrl = utils.HadleNullSqlString(&photoRet)
+	payload.Name = utils.HadleNullSqlString(&nameRet)
 
 	if scanErr == sql.ErrNoRows {
 		http.Error(w, "User not found", http.StatusNotFound)
