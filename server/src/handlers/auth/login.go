@@ -20,7 +20,7 @@ type QueryData struct {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	// checking if already logged in
-	rTokenError := utils.VerifyRefreshToken(r)
+	_, rTokenError := utils.VerifyRefreshToken(r)
 
 	// reverting if there is no error present which means a valid refresh token is present
 	if rTokenError == nil {
@@ -91,7 +91,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// setting cookies
 	cookie := http.Cookie{
-		Name:     "iam-refresh",
+		Name:     utils.RefreshCookieName,
 		Value:    token,
 		MaxAge:   5000,
 		Secure:   true,

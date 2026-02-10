@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	Key        = "yqY9OPPUy4RouGWbelqwUwlxqyu9NwzFMZNrZJlcfLV"
-	refreshExp = time.Hour * 24 * 14 // 14 days
-	accessExp  = time.Minute * 5     // 14 days
+	Key               = "yqY9OPPUy4RouGWbelqwUwlxqyu9NwzFMZNrZJlcfLV"
+	refreshExp        = time.Hour * 24 * 14 // 14 days
+	accessExp         = time.Minute * 5     // 14 days
+	RefreshCookieName = "iam-refresh"
 )
 
 func CreateRefreshToken(userId string, userdata types.UserData) (string, error) {
@@ -41,13 +42,12 @@ func createJwt(userId string, userdata types.UserData, exp time.Duration, key st
 	return token.SignedString([]byte(key))
 }
 
-func VerifyRefreshToken(r *http.Request) error {
-	cookie, cookieErr := r.Cookie("iam-refresh")
+func VerifyRefreshToken(r *http.Request) (*types.CustomClaims, error) {
+	cookie, cookieErr := r.Cookie(RefreshCookieName)
 	if cookieErr != nil {
-		return cookieErr
+		return nil, cookieErr
 	}
-	_, validationError := validateToken(cookie.Value, Key)
-	return validationError
+	return validateToken(cookie.Value, Key)
 }
 
 func VerifyAccessToken(r *http.Request) (*types.CustomClaims, error) {
@@ -66,7 +66,7 @@ func VerifyAccessToken(r *http.Request) (*types.CustomClaims, error) {
 }
 
 func validateToken(tokenString string, secretKey string) (*types.CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &types.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &types.CustomClaims{}, func(token *jwt.Token) (any, error) {
 		// Validate signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
