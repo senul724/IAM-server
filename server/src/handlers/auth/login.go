@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"IAM-server/src/connections"
@@ -19,6 +19,15 @@ type QueryData struct {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	// checking if already logged in
+	rTokenError := utils.CheckRefreshToken(r)
+
+	// reverting if there is no error present which means a valid refresh token is present
+	if rTokenError == nil {
+		http.Error(w, "Already logged in", http.StatusBadRequest)
+		return
+	}
+
 	var credentials types.UserCredential
 	var queryData QueryData
 
@@ -74,7 +83,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		PhotoUrl: queryData.PhotoUrl,
 		Email:    credentials.Email,
 	}
-	token, jwtError := utils.CreateRefreshToken(queryData.UserId, &userdata)
+	token, jwtError := utils.CreateRefreshToken(queryData.UserId, userdata)
 	if jwtError != nil {
 		http.Error(w, "Failed to generate token:"+jwtError.Error(), http.StatusInternalServerError)
 		return
