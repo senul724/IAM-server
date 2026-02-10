@@ -4,6 +4,7 @@ import (
 	"IAM-server/src/connections"
 	"IAM-server/src/types"
 	"IAM-server/src/utils"
+	"IAM-server/src/utils/env"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -91,7 +92,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// setting cookies
 	cookie := http.Cookie{
-		Name:     utils.RefreshCookieName,
+		Name:     env.REFRESH_COOKIE_NAME,
 		Value:    token,
 		MaxAge:   5000,
 		Secure:   true,

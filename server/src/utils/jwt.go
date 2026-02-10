@@ -2,6 +2,7 @@ package utils
 
 import (
 	"IAM-server/src/types"
+	"IAM-server/src/utils/env"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,18 +13,18 @@ import (
 )
 
 const (
-	Key               = "yqY9OPPUy4RouGWbelqwUwlxqyu9NwzFMZNrZJlcfLV"
-	refreshExp        = time.Hour * 24 * 14 // 14 days
-	accessExp         = time.Minute * 5     // 14 days
-	RefreshCookieName = "iam-refresh"
+	// Key               = "yqY9OPPUy4RouGWbelqwUwlxqyu9NwzFMZNrZJlcfLV"
+	refreshExp = time.Hour * 24 * 14 // 14 days
+	accessExp  = time.Minute * 5     // 14 days
+	// RefreshCookieName = "iam-refresh"
 )
 
 func CreateRefreshToken(userId string, userdata types.UserData) (string, error) {
-	return createJwt(userId, userdata, refreshExp, Key)
+	return createJwt(userId, userdata, refreshExp, env.REFRESH_KEY)
 }
 
 func CreateAccessToken(userId string, userdata types.UserData) (string, error) {
-	return createJwt(userId, userdata, accessExp, Key)
+	return createJwt(userId, userdata, accessExp, env.ACCESS_KEY)
 }
 
 func createJwt(userId string, userdata types.UserData, exp time.Duration, key string) (string, error) {
@@ -43,11 +44,11 @@ func createJwt(userId string, userdata types.UserData, exp time.Duration, key st
 }
 
 func VerifyRefreshToken(r *http.Request) (*types.CustomClaims, error) {
-	cookie, cookieErr := r.Cookie(RefreshCookieName)
+	cookie, cookieErr := r.Cookie(env.REFRESH_COOKIE_NAME)
 	if cookieErr != nil {
 		return nil, cookieErr
 	}
-	return validateToken(cookie.Value, Key)
+	return validateToken(cookie.Value, env.REFRESH_KEY)
 }
 
 func VerifyAccessToken(r *http.Request) (*types.CustomClaims, error) {
@@ -62,7 +63,7 @@ func VerifyAccessToken(r *http.Request) (*types.CustomClaims, error) {
 	}
 
 	tokenString := strings.TrimSpace(strings.TrimPrefix(authHeader, prefix))
-	return validateToken(tokenString, Key)
+	return validateToken(tokenString, env.ACCESS_KEY)
 }
 
 func validateToken(tokenString string, secretKey string) (*types.CustomClaims, error) {

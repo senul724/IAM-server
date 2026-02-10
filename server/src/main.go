@@ -5,13 +5,24 @@ import (
 	"IAM-server/src/handlers"
 	"IAM-server/src/handlers/auth"
 	"IAM-server/src/handlers/tokens"
+	"IAM-server/src/utils/env"
+	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	//loading env
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	env.LoadEnv()
+
+	// etablishing DB connection
 	db, err := connections.ConnectDB()
 	if err != nil {
 		panic(err)
@@ -30,6 +41,6 @@ func main() {
 
 	router.HandleFunc("POST /token/refresh", tokens.IssueAccess)
 
-	log.Println("Server starting on :8000")
-	log.Fatal(http.ListenAndServe(":8000", router))
+	log.Printf("Server starting on %s", env.PORT)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", env.PORT), router))
 }
