@@ -21,7 +21,7 @@ type registerData struct {
 
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// checking if already logged in
-	rTokenError := utils.CheckRefreshToken(r)
+	rTokenError := utils.VerifyRefreshToken(r)
 
 	// reverting if there is no error present which means a valid refresh token is present
 	if rTokenError == nil {

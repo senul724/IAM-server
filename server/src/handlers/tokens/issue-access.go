@@ -7,7 +7,7 @@ import (
 
 func IssueAccess(w http.ResponseWriter, r *http.Request) {
 	// check for refresh token
-	cookieErr := utils.CheckRefreshToken(r)
+	cookieErr := utils.VerifyRefreshToken(r)
 	if cookieErr != nil {
 		http.Error(w, cookieErr.Error(), http.StatusBadRequest)
 		return
