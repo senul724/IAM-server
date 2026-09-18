@@ -1,0 +1,14 @@
+basePath: /api
+host: localhost:3030
+info:
+  contact: {}
+  description: Backend API for TailorSmart tailoring management system.
+  title: TailorSmart API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
