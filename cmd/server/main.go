@@ -2,6 +2,7 @@ package main
 
 import (
 	"IAM-server/internal/connections"
+	"IAM-server/internal/routes"
 	"log"
 	"time"
 
@@ -12,9 +13,9 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title TailorSmart API
+// @title IAM Server
 // @version 1.0
-// @description Backend API for TailorSmart tailoring management system.
+// @description Backend API for IAM server.
 // @host localhost:3030
 // @BasePath /api
 // @securityDefinitions.apikey BearerAuth
@@ -26,6 +27,7 @@ func main() {
 	}
 
 	connections.ConnectDB()
+	connections.ConnectRedis()
 	connections.Migrate()
 
 	r := gin.Default()
@@ -44,6 +46,12 @@ func main() {
 	)
 
 	api := r.Group("/api")
+
+	// auth routes
+	routes.SetAuthRoutes(api)
+
+	// note routes
+	routes.SetNoteRoutes(api)
 
 	r.Run(":3030")
 }
