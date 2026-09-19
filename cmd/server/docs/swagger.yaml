@@ -2,8 +2,8 @@ basePath: /api
 host: localhost:3030
 info:
   contact: {}
-  description: Backend API for TailorSmart tailoring management system.
-  title: TailorSmart API
+  description: Backend API for IAM server.
+  title: IAM Server
   version: "1.0"
 paths: {}
 securityDefinitions:

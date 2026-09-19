@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Backend API for TailorSmart tailoring management system.",
-        "title": "TailorSmart API",
+        "description": "Backend API for IAM server.",
+        "title": "IAM Server",
         "contact": {},
         "version": "1.0"
     },
