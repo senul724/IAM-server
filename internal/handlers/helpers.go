@@ -53,20 +53,25 @@ func IssueAuthTokens(c *gin.Context, customer *models.Customer) (string, string,
 		return "", "", err
 	}
 
-	// Set cookies with SameSite=None to support the cookies to set in an application from another domain
-	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie(services.REFRESH_COOKIE_NAME, refreshToken, services.COOKIE_MAX_AGE, "/", "", true, true)
-	c.SetCookie(services.SESSION_COOKIE_NAME, sessionToken, services.COOKIE_MAX_AGE, "/", "", true, false)
+	// Set cookies only if the device is not mobile
+	if c.GetHeader("X-Device-Type") != "mobile" {
+		// Set cookies with SameSite=None to support the cookies to set in an application from another domain
+		c.SetSameSite(http.SameSiteNoneMode)
+		c.SetCookie(services.REFRESH_COOKIE_NAME, refreshToken, services.COOKIE_MAX_AGE, "/", "", true, true)
+		c.SetCookie(services.SESSION_COOKIE_NAME, sessionToken, services.COOKIE_MAX_AGE, "/", "", true, false)
+	}
 
 	return accessToken, refreshToken, nil
 }
 
 // LogoutHandler clears authentication cookies.
 func LogoutHandler(c *gin.Context) {
-	// ClearAuthCookies clears the refresh and session tokens cookies.
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie(services.REFRESH_COOKIE_NAME, "", -1, "/", "", false, true)
-	c.SetCookie(services.SESSION_COOKIE_NAME, "", -1, "/", "", false, true)
+	if c.GetHeader("X-Device-Type") != "mobile" {
+		// ClearAuthCookies clears the refresh and session tokens cookies.
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie(services.REFRESH_COOKIE_NAME, "", -1, "/", "", false, true)
+		c.SetCookie(services.SESSION_COOKIE_NAME, "", -1, "/", "", false, true)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logged out successfully",
