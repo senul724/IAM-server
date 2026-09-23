@@ -107,16 +107,17 @@ func LoginWithOTPHandler(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := IssueAuthTokens(c, customer)
+	accessToken, refreshToken, err := IssueAuthTokens(c, customer)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate tokens"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "Login successful",
-		"access_token": accessToken,
-		"user":         customer,
+		"message":       "Login successful",
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+		"user":          customer,
 	})
 }
 
@@ -148,15 +149,16 @@ func RegisterWithOTPHandler(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := IssueAuthTokens(c, customer)
+	accessToken, refreshToken, err := IssueAuthTokens(c, customer)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate tokens"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message":      "Registration successful",
-		"access_token": accessToken,
-		"user":         customer,
+		"message":       "Registration successful",
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+		"user":          customer,
 	})
 }

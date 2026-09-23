@@ -4,6 +4,7 @@ import (
 	"IAM-server/internal/connections"
 	"IAM-server/internal/routes"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -46,6 +47,12 @@ func main() {
 	)
 
 	api := r.Group("/api")
+
+	api.GET("/hi", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"Message": "Hi there",
+		})
+	})
 
 	// auth routes
 	routes.SetAuthRoutes(api)
