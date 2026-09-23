@@ -33,6 +33,7 @@ func Migrate() {
 	err := DB.AutoMigrate(
 		&models.Customer{},
 		&models.Note{},
+		&models.Session{},
 	)
 	if err != nil {
 		log.Fatalf("migration failed: %v", err)

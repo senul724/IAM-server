@@ -8,5 +8,6 @@ type Customer struct {
 	PhotoURL *string `gorm:"default:null"                   json:"photo_url,omitempty"`
 
 	// Associations
-	Notes []Note `gorm:"foreignKey:CustomerID" json:"notes,omitempty"`
+	Notes    []Note    `gorm:"foreignKey:CustomerID" json:"notes,omitempty"`
+	Sessions []Session `gorm:"foreignKey:UserID"     json:"sessions,omitempty"`
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 const ACCESS_TOKEN_TTL = 30 * time.Minute
@@ -20,12 +21,18 @@ type AccessTokenClaims struct {
 func GenerateAccessToken(
 	email string,
 	userID string,
-) (string, error) {
+	customJTI string,
+) (string, string, error) {
+	jti := uuid.New().String()
+	if customJTI != "" {
+		jti = customJTI
+	}
 
 	claims := AccessTokenClaims{
 		Email: email,
 
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        jti,
 			Subject:   userID,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ACCESS_TOKEN_TTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -40,10 +47,10 @@ func GenerateAccessToken(
 	signedToken, err := token.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return signedToken, nil
+	return signedToken, jti, nil
 }
 
 func VerifyAccessToken(tokenString string) (*AccessTokenClaims, error) {

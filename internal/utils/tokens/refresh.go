@@ -7,15 +7,22 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 const REFRESH_TOKEN_TTL = 15 * 24 * time.Hour
 
 func GenerateRefreshToken(
 	userID string,
-) (string, error) {
+	customJTI string,
+) (string, string, error) {
+	jti := uuid.New().String()
+	if customJTI != "" {
+		jti = customJTI
+	}
 
 	claims := jwt.RegisteredClaims{
+		ID:        jti,
 		Subject:   userID,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(REFRESH_TOKEN_TTL)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -29,10 +36,10 @@ func GenerateRefreshToken(
 	signedToken, err := token.SignedString([]byte(os.Getenv("REFRESH_SECRET")))
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return signedToken, nil
+	return signedToken, jti, nil
 }
 
 func VerifyRefreshToken(tokenString string) (*jwt.RegisteredClaims, error) {

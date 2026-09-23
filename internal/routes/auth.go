@@ -2,6 +2,7 @@ package routes
 
 import (
 	"IAM-server/internal/handlers"
+	"IAM-server/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,7 @@ func SetAuthRoutes(api *gin.RouterGroup) {
 
 	// refresh & session
 	auth.POST("/refresh", handlers.RefreshTokenHandler)
+	auth.POST("/session/remove", middleware.ProtectRoute(), handlers.RemoveSessionHandler)
 
 	//logout
 	auth.POST("/logout", handlers.LogoutHandler)

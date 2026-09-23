@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"IAM-server/internal/services"
 	"IAM-server/internal/utils/tokens"
 	"net/http"
 	"strings"
@@ -41,6 +42,24 @@ func ProtectRoute() gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "invalid or expired access token",
+			})
+			c.Abort()
+			return
+		}
+
+		// Cross-check access token JTI with Redis
+		if claims.ID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "invalid access token: missing token identifier",
+			})
+			c.Abort()
+			return
+		}
+
+		userID, err := services.ValidateAccessTokenJTI(c.Request.Context(), claims.ID)
+		if err != nil || userID != claims.Subject {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "access token revoked or expired",
 			})
 			c.Abort()
 			return
