@@ -2,6 +2,7 @@ package routes
 
 import (
 	"IAM-server/internal/handlers"
+	"IAM-server/internal/handlers/oauth"
 	"IAM-server/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -34,4 +35,8 @@ func SetAuthRoutes(api *gin.RouterGroup) {
 	// email & otp checks
 	auth.POST("/check-email", handlers.CheckEmailHandler)
 	auth.POST("/send-login-otp", handlers.SendLoginOTPHandler)
+
+	// oauth
+	auth.GET("/google/login", oauth.GoogleLoginHandler)
+	auth.GET("/google/callback", oauth.GoogleCallbackHandler)
 }
