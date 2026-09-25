@@ -53,12 +53,11 @@ func GoogleLoginHandler(c *gin.Context) {
 }
 
 // @Summary Handle Google OAuth callback
-// @Description Handles the OAuth callback from Google. Validates the state parameter, exchanges the authorization code for tokens, verifies the ID token, finds or creates the user, and issues auth tokens.
+// @Description Handles the OAuth callback from Google. Validates the state parameter, exchanges the authorization code for tokens, verifies the ID token, finds or creates the user, issues auth tokens, and redirects to the frontend.
 // @Tags OAuth
-// @Produce json
 // @Param state query string true "OAuth state parameter for CSRF validation"
 // @Param code query string true "Authorization code from Google"
-// @Success 200 {object} map[string]any "Login successful with tokens and user info"
+// @Success 302 "Redirect to frontend"
 // @Failure 400 {object} map[string]string "Invalid state"
 // @Failure 401 {object} map[string]string "Invalid ID token"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -117,18 +116,16 @@ func GoogleCallbackHandler(c *gin.Context) {
 	}
 
 	// Issue auth tokens (access, refresh, session) and set cookies
-	accessToken, refreshToken, err := handlers.IssueAuthTokens(c, customer)
-	if err != nil {
+	if _, _, err := handlers.IssueAuthTokens(c, customer); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate tokens"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":       "Login successful",
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-		"user":          customer,
-	})
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "/"
+	}
+	c.Redirect(http.StatusFound, frontendURL)
 }
 
 func randomString(n int) string {
