@@ -8,19 +8,26 @@ A lightweight Identity & Access Management (IAM) and authentication demo server 
 Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL="host=localhost port=5432 user=senul dbname=tailorsmart sslmode=disable password=senul123"
+DATABASE_URL=""
 
 # Upstash Redis
-UPSTASH_REDIS_URL="rediss://default:your-password@your-endpoint.upstash.io:6379"
+REDIS_URL=""
 
 # Resend Email Service
-RESEND_API_KEY="re_your_resend_api_key"
-RESEND_FROM_EMAIL="onboarding@resend.dev"
+RESEND_API_KEY=""
+RESEND_FROM_EMAIL=""
 
 # JWT Secrets
-ACCESS_SECRET="your-access-secret"
-REFRESH_SECRET="your-refresh-secret"
-SESSION_SECRET="your-session-secret"
+ACCESS_SECRET=""
+REFRESH_SECRET=""
+SESSION_SECRET=""
+
+# Google Oauth credentials
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# if you change this, make sure to change it in the routes
+GOOGLE_REDIRECT_URL="http://localhost:3030/api/auth/google/callback"
 ```
 
 ### 2. Run
