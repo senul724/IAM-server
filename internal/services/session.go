@@ -99,3 +99,13 @@ func DeleteSessionByID(ctx context.Context, sessionID uuid.UUID, userID uuid.UUI
 
 	return nil
 }
+
+// Get available sessions for the user (excluding the current one)
+func GetAvailableSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]models.Session, error) {
+	var sessions []models.Session
+	err := connections.DB.WithContext(ctx).Where("user_id = ?", userID).Find(&sessions).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch sessions: %w", err)
+	}
+	return sessions, nil
+}

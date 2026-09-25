@@ -22,6 +22,7 @@ func SetAuthRoutes(api *gin.RouterGroup) {
 	// refresh & session
 	auth.POST("/refresh", handlers.RefreshTokenHandler)
 	auth.POST("/session/remove", middleware.ProtectRoute(), handlers.RemoveSessionHandler)
+	auth.GET("/sessions", middleware.ProtectRoute(), handlers.GetAllSessionsHandler)
 
 	//logout
 	auth.POST("/logout", handlers.LogoutHandler)

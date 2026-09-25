@@ -64,3 +64,39 @@ func RemoveSessionHandler(c *gin.Context) {
 		"message": "Session removed successfully",
 	})
 }
+
+// GetAllSessionsHandler gets all available sessions for the user.
+// @Summary Get all sessions
+// @Description Gets all available sessions for the user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /auth/sessions [get]
+func GetAllSessionsHandler(c *gin.Context) {
+	user, err := resolveUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userUUID, err := uuid.Parse(user.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id in context"})
+		return
+	}
+
+	sessions, err := services.GetAvailableSessionsByUserID(c.Request.Context(), userUUID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Sessions fetched successfully",
+		"sessions": sessions,
+	})
+}
