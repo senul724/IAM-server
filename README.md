@@ -11,7 +11,7 @@ Create a `.env` file in the root directory:
 DATABASE_URL=""
 
 # Upstash Redis
-UPSTASH_REDIS_URL=""
+REDIS_URL=""
 
 # Resend Email Service
 RESEND_API_KEY=""
@@ -21,6 +21,13 @@ RESEND_FROM_EMAIL=""
 ACCESS_SECRET=""
 REFRESH_SECRET=""
 SESSION_SECRET=""
+
+# Google Oauth credentials
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# if you change this, make sure to change it in the routes
+GOOGLE_REDIRECT_URL="http://localhost:3030/api/auth/google/callback"
 ```
 
 ### 2. Run
