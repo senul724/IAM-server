@@ -5,6 +5,7 @@ import (
 	"IAM-server/internal/routes"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -29,7 +30,11 @@ func main() {
 
 	connections.ConnectDB()
 	connections.ConnectRedis()
-	connections.Migrate()
+
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+		connections.Migrate()
+		return
+	}
 
 	r := gin.Default()
 
